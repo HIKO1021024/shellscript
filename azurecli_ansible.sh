@@ -27,32 +27,26 @@ echo $ansiblemain
 
 ### target1作成
 test=$(az vm create -n target1 -g ansible_test --image CentOS 
---generate-ssh-keys --size Standard_B1s --admin-username ansibleuser 
---nsg AnsibleMainNSG)
+--generate-ssh-keys --size Standard_B1s --admin-username ansibleuser --nsg AnsibleMainNSG)
 test=$(echo $test | jq '.privateIpAddress')
 test=${test//\"/}
 echo $test >> hosts
 
 # target2作成
 test=$(az vm create -n target2 -g ansible_test --image CentOS 
---generate-ssh-keys --size Standard_B1s --admin-username ansibleuser 
---nsg AnsibleMainNSG)
+--generate-ssh-keys --size Standard_B1s --admin-username ansibleuser --nsg AnsibleMainNSG)
 test=$(echo $test | jq '.privateIpAddress')
 test=${test//\"/}
 echo $test >> hosts
 
 # winserver作成s
-#test=$(az vm create -n win -g ansible_test --image Win2016Datacenter 
-#--generate-ssh-keys --size Standard_B1s --admin-username ansibleuser 
-#--admin-password  --nsg AnsibleMainNSG)
+#test=$(az vm create -n win -g ansible_test --image Win2016Datacenter --generate-ssh-keys --size Standard_B1s --admin-username ansibleuser --admin-password pass --nsg AnsibleMainNSG)
 
 # ansibleインストール
-ssh -n -oStrictHostKeyChecking=no ansibleuser@$ansiblemain -i 
-~/.ssh/id_rsa "sudo yum -y install ansible"
+ssh -n -oStrictHostKeyChecking=no ansibleuser@$ansiblemain -i ~/.ssh/id_rsa "sudo yum -y install ansible"
 
 #既存のホストファイルの名前変える
-ssh -n  -oStrictHostKeyChecking=no ansibleuser@$ansiblemain -i 
-~/.ssh/id_rsa sudo mv /etc/ansible/hosts /etc/ansible/hosts.org
+ssh -n  -oStrictHostKeyChecking=no ansibleuser@$ansiblemain -i ~/.ssh/id_rsa sudo mv /etc/ansible/hosts /etc/ansible/hosts.org
 
 # ホストファイルをおくる
 scp -i ~/.ssh/id_rsa hosts ansibleuser@$ansiblemain:/home/ansibleuser
@@ -63,18 +57,13 @@ ansibleuser@$ansiblemain:/home/ansibleuser
 
 
 # ファイル移動させる
-ssh -n  -oStrictHostKeyChecking=no ansibleuser@$ansiblemain -i 
-~/.ssh/id_rsa sudo mv /home/ansibleuser/hosts /etc/ansible
+ssh -n  -oStrictHostKeyChecking=no ansibleuser@$ansiblemain -i ~/.ssh/id_rsa sudo mv /home/ansibleuser/hosts /etc/ansible
 
 # 鍵を移動させる
-ssh -n  -oStrictHostKeyChecking=no ansibleuser@$ansiblemain -i 
-~/.ssh/id_rsa sudo mv /home/ansibleuser/id_rsa /home/ansibleuser/.ssh
+ssh -n  -oStrictHostKeyChecking=no ansibleuser@$ansiblemain -i ~/.ssh/id_rsa sudo mv /home/ansibleuser/id_rsa /home/ansibleuser/.ssh
 
 #設定変更
-ssh -n  -oStrictHostKeyChecking=no ansibleuser@$ansiblemain -i 
-~/.ssh/id_rsa 'sudo sed -i -e  '/ssh_connection/a'"ssh_args = -o 
-ControlMaster=auto -o ControlPersist=60s -o StrictHostKeyChecking=no -o 
-UserKnownHostsFile=/dev/null" /etc/ansible/ansible.cfg'
+ssh -n  -oStrictHostKeyChecking=no ansibleuser@$ansiblemain -i ~/.ssh/id_rsa 'sudo sed -i -e  '/ssh_connection/a'"ssh_args = -o ControlMaster=auto -o ControlPersist=60s -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" /etc/ansible/ansible.cfg'
 
 # 設定の意味
 # デフォルト設定
@@ -90,14 +79,12 @@ UserKnownHostsFile=/dev/null" /etc/ansible/ansible.cfg'
 Nodeのサーバ更改時など、fingerprintが変わった時に、データベースファイルを整合性が取れずエラーとなってしまうのを回避する。
 
 #設定変わったかな？
-ssh -n  -oStrictHostKeyChecking=no ansibleuser@$ansiblemain -i 
-~/.ssh/id_rsa cat /etc/ansible/ansible.cfg
+ssh -n  -oStrictHostKeyChecking=no ansibleuser@$ansiblemain -i ~/.ssh/id_rsa cat /etc/ansible/ansible.cfg
 
 echo $ansiblemain
 
 #アンシブルコマンド実行
-ssh -n  -oStrictHostKeyChecking=no ansibleuser@$ansiblemain -i 
-~/.ssh/id_rsa ansible all -m ping
+ssh -n  -oStrictHostKeyChecking=no ansibleuser@$ansiblemain -i ~/.ssh/id_rsa ansible all -m ping
 
 #お知らせメッセージ
 echo "AnsibleMainのアドレスは"$ansiblemain
