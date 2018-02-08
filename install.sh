@@ -2,16 +2,15 @@
 #opemstackŠÂ‹«‚ğì‚é
 
 yum -y update
-dd if=/dev/zero of=swapadd bs=1M count=10240
-chmod 600 swapadd
-mkswap swapadd
-swapon swapadd
+dd if=/dev/zero of=swapadd bs=1M count=4000
+sudo chmod 600 swapadd
+sudo mkswap swapadd
+sudo swapon swapadd
 yum -y install ld-linux.so.2
 yum -y install wget
 yum -y install epel-release
 yum -y install git
 yum -y install wireless-tools
-iwconfig wls34 essid "hiko" key "s:hikohiko"
 systemctl stop NetworkManager
 systemctl disable NetworkManager
 systemctl stop firewalld
