@@ -1,21 +1,24 @@
-# ÉAÉìÉVÉuÉãÉRÉ}ÉìÉhé¿çs# ÉäÉtÉ@ÉåÉìÉXÇÕÇ±ÇøÇÁÅiÇ±ÇÃíÜÇ…Åj
+#root§Œ•—•π•Ô°º•…§À§π§Î§‰§ƒ
+pw=adminpass
+
+# •¢•Û•∑•÷•Î•≥•ﬁ•Û•…º¬π‘# •Í•’•°•Ï•Û•π§œ§≥§¡§È° §≥§Œ√Ê§À°À
 # https://docs.microsoft.com/en-us/cli/azure/vm?view=azure-cli-latest
-# ÉTÉuÉXÉNÉäÉvÉVÉáÉìÇjsonÇ©ÇÁéÊìæ
+# •µ•÷•π•Ø•Í•◊•∑•Á•Û§Újson§´§ÈºË∆¿
 username=$(az account list | jq '.[].name')
-# É_ÉuÉãÉRÅ[ÉeÅ[ÉVÉáÉìÇ≈àÕÇ‹ÇÍÇƒÇ¢ÇÈÇÃÇ≈çÌèú
+# •¿•÷•Î•≥°º•∆°º•∑•Á•Û§«∞œ§ﬁ§Ï§∆§§§Î§Œ§«∫ÔΩ¸
 username=${username//\"/}
-# ÉTÉuÉXÉNÉäÉvÉVÉáÉìê›íË
+# •µ•÷•π•Ø•Í•◊•∑•Á•Û¿ﬂƒÍ
 az account set --subscription $username
-# ÉäÉ\Å[ÉXÉOÉãÅ[ÉvçÏê¨
+# •Í•Ω°º•π•∞•Î°º•◊∫Ó¿Æ
 az group create -l japaneast -n ansible_test
-# NWçÏê¨
-# Ç»ÇÒÇ©é©ìÆê∂ê¨Ç≥ÇÍÇÈÇ©ÇÁÇ¢Ç¢Ç‚
+# NW∫Ó¿Æ
+# § §Û§´º´∆∞¿∏¿Æ§µ§Ï§Î§´§È§§§§§‰
 
-#hostfileçÏê¨
+#hostfile∫Ó¿Æ
 echo "[all]" > hosts
-# VMçÏê¨
+# VM∫Ó¿Æ
 
-# AnsiblemainçÏê¨
+# Ansiblemain∫Ó¿Æ
 test=$(az vm create -n AnsibleMain -g ansible_test --image CentOS --generate-ssh-keys --size Standard_B1s --admin-username ansibleuser)
 ansiblemain=$(echo $test | jq '.publicIpAddress')
 ansiblemain=${ansiblemain//\"/}
@@ -28,9 +31,9 @@ expect -c "
   set timeout 5
   spawn sudo passwd
   expect \"New password:\"
-  send -- \"passwd\n\"
+  send -- \"${pass}\n\"
   expect \"Retype new password:\"
-  send -- \"adminpass\n\"
+  send -- \"${pass}\n\"
 expect \"passwd: all authentication tokens updated successfully.\"
 send -- \"exit\n\"
 "
@@ -48,10 +51,13 @@ send -- \"${pw}\n\"
 expect \"passwd: all authentication tokens updated successfully.\"
 send -- \"exit\n\"
 "
-
-su -
-
-adminpass
+expect -c "
+spawn su -
+expect \"Password:\"
+send -- \"${pw}\n\"
+expect \"Last login:\"
+send -- \"exit\n\"
+"
 
 dd if=/dev/zero of=swapadd bs=1M count=4000
 sudo chmod 600 swapadd
