@@ -16,8 +16,7 @@ echo "[all]" > hosts
 # VM作成
 
 # Ansiblemain作成
-test=$(az vm create -n AnsibleMain -g ansible_test --image CentOS 
---generate-ssh-keys --size Standard_B1s --admin-username ansibleuser)
+test=$(az vm create -n AnsibleMain -g ansible_test --image CentOS --generate-ssh-keys --size Standard_B1s --admin-username ansibleuser)
 ansiblemain=$(echo $test | jq '.publicIpAddress')
 ansiblemain=${ansiblemain//\"/}
 test=$(echo $test | jq '.privateIpAddress')
@@ -26,15 +25,13 @@ test=${test//\"/}
 echo $ansiblemain
 
 ### target1作成
-test=$(az vm create -n target1 -g ansible_test --image CentOS 
---generate-ssh-keys --size Standard_B1s --admin-username ansibleuser --nsg AnsibleMainNSG)
+test=$(az vm create -n target1 -g ansible_test --image CentOS --generate-ssh-keys --size Standard_B1s --admin-username ansibleuser --nsg AnsibleMainNSG)
 test=$(echo $test | jq '.privateIpAddress')
 test=${test//\"/}
 echo $test >> hosts
 
 # target2作成
-test=$(az vm create -n target2 -g ansible_test --image CentOS 
---generate-ssh-keys --size Standard_B1s --admin-username ansibleuser --nsg AnsibleMainNSG)
+test=$(az vm create -n target2 -g ansible_test --image CentOS --generate-ssh-keys --size Standard_B1s --admin-username ansibleuser --nsg AnsibleMainNSG)
 test=$(echo $test | jq '.privateIpAddress')
 test=${test//\"/}
 echo $test >> hosts
@@ -74,12 +71,17 @@ ssh -n  -oStrictHostKeyChecking=no ansibleuser@$ansiblemain -i ~/.ssh/id_rsa 'su
 # fingerprintは確認なしにホストのデータベースファイルに記録されていく。
 #
 # UserKnownHostsFile=/dev/null
+
 # ホストのデータベースファイル。（デフォルトでは~/.ssh/known_hosts）
 # データベースファイルを常に空(/dev/null)にすることで、Managed 
 Nodeのサーバ更改時など、fingerprintが変わった時に、データベースファイルを整合性が取れずエラーとなってしまうのを回避する。
 
 #設定変わったかな？
 ssh -n  -oStrictHostKeyChecking=no ansibleuser@$ansiblemain -i ~/.ssh/id_rsa cat /etc/ansible/ansible.cfg
+
+sudo passwd
+
+adminpassword
 
 echo $ansiblemain
 

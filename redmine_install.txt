@@ -1,0 +1,65 @@
+# アンシブルコマンド実行# リファレンスはこちら（この中に）
+# https://docs.microsoft.com/en-us/cli/azure/vm?view=azure-cli-latest
+# サブスクリプションをjsonから取得
+username=$(az account list | jq '.[].name')
+# ダブルコーテーションで囲まれているので削除
+username=${username//\"/}
+# サブスクリプション設定
+az account set --subscription $username
+# リソースグループ作成
+az group create -l japaneast -n ansible_test
+# NW作成
+# なんか自動生成されるからいいや
+
+#hostfile作成
+echo "[all]" > hosts
+# VM作成
+
+# Ansiblemain作成
+test=$(az vm create -n AnsibleMain -g ansible_test --image CentOS --generate-ssh-keys --size Standard_B1s --admin-username ansibleuser)
+ansiblemain=$(echo $test | jq '.publicIpAddress')
+ansiblemain=${ansiblemain//\"/}
+
+ssh ansibleuser@$ansiblemain -i ~/.ssh/id_rsa
+
+sudo yum install -y expect
+
+expect -c "
+  set timeout 5
+  spawn sudo passwd
+  expect \"New password:\"
+  send -- \"passwd\n\"
+  expect \"Retype new password:\"
+  send -- \"adminpass\n\"
+expect \"passwd: all authentication tokens updated successfully.\"
+send -- \"exit\n\"
+"
+
+
+export LANG=C
+pw="addminpass"
+
+expect -c "
+spawn sudo passwd
+expect \"New password:\"
+send -- \"${pw}\n\" 
+expect \"Retype new password:\"
+send -- \"${pw}\n\"
+expect \"passwd: all authentication tokens updated successfully.\"
+send -- \"exit\n\"
+"
+
+su -
+
+adminpass
+
+dd if=/dev/zero of=swapadd bs=1M count=4000
+sudo chmod 600 swapadd
+sudo mkswap swapadd
+sudo swapon swapadd
+
+sudo yum install -y epel-release
+sudo yum install -y ansible git
+sudo git clone https://github.com/farend/redmine-centos-ansible.git
+
+ansible-playbook -i redmine-centos-ansible/hosts redmine-centos-ansible/site.yml
