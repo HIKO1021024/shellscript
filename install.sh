@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/bin/sh -x
+
 #opemstackŠÂ‹«‚ğì‚é
 
 yum -y update

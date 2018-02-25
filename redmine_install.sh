@@ -1,5 +1,9 @@
+#!/bin/sh -x
+
 #rootのパスワードにするやつ
 pw=adminpass
+dbpass=DB_pass
+
 
 # アンシブルコマンド実行# リファレンスはこちら（この中に）
 # https://docs.microsoft.com/en-us/cli/azure/vm?view=azure-cli-latest
@@ -23,7 +27,11 @@ test=$(az vm create -n AnsibleMain -g ansible_test --image CentOS --generate-ssh
 ansiblemain=$(echo $test | jq '.publicIpAddress')
 ansiblemain=${ansiblemain//\"/}
 
-ssh ansibleuser@$ansiblemain -i ~/.ssh/id_rsa
+az network nsg rule create --name port80_allow --resource-group ansible_test --nsg-name AnsibleMainNSG --priority 100 --destination-port-ranges 80 8080 --access Allow
+
+cat ~/.ssh/id_rsa
+
+ssh -oStrictHostKeyChecking=no ansibleuser@$ansiblemain -i ~/.ssh/id_rsa
 
 sudo yum install -y expect
 
@@ -40,7 +48,7 @@ send -- \"exit\n\"
 
 
 export LANG=C
-pw="addminpass"
+pw="adminpass"
 
 expect -c "
 spawn sudo passwd
@@ -56,7 +64,7 @@ spawn su -
 expect \"Password:\"
 send -- \"${pw}\n\"
 expect \"Last login:\"
-send -- \"exit\n\"
+send -- \"\n\"
 "
 
 dd if=/dev/zero of=swapadd bs=1M count=4000
@@ -67,5 +75,7 @@ sudo swapon swapadd
 sudo yum install -y epel-release
 sudo yum install -y ansible git
 sudo git clone https://github.com/farend/redmine-centos-ansible.git
+
+sed -e 's/Must_be_changed!/'$dbpass'/g' redmine-centos-ansible/group_vars/redmine-servers > redmine-centos-ansible/group_vars/redmine-servers
 
 ansible-playbook -i redmine-centos-ansible/hosts redmine-centos-ansible/site.yml

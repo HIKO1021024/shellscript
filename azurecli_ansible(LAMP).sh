@@ -50,6 +50,9 @@ ssh -n -oStrictHostKeyChecking=no ansibleuser@$ansiblemain -i ~/.ssh/id_rsa "sud
 # gitインストール
 ssh -n -oStrictHostKeyChecking=no ansibleuser@$ansiblemain -i ~/.ssh/id_rsa "sudo yum -y install git"
 
+# gitクローン
+ssh -n -oStrictHostKeyChecking=no ansibleuser@$ansiblemain -i ~/.ssh/id_rsa "sudo git clone https://github.com/HIKO1021024/centos_lamp.git"
+
 #既存のホストファイルの名前変える
 ssh -n  -oStrictHostKeyChecking=no ansibleuser@$ansiblemain -i ~/.ssh/id_rsa sudo mv /etc/ansible/hosts /etc/ansible/hosts.org
 
@@ -90,6 +93,8 @@ echo $ansiblemain
 
 #アンシブルコマンド実行
 ssh -n  -oStrictHostKeyChecking=no ansibleuser@$ansiblemain -i ~/.ssh/id_rsa ansible all -m ping
+
+ssh -n  -oStrictHostKeyChecking=no ansibleuser@$ansiblemain -i ~/.ssh/id_rsa ansible-playbookl ~/ansibleuser/centos_lamp/site.yml
 
 #お知らせメッセージ
 echo "AnsibleMainのアドレスは"$ansiblemain

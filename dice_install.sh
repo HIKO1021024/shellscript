@@ -1,3 +1,5 @@
+#!/bin/sh -x
+
 export LANG=ja_JP.eucJP
 
 service="serivicename"
@@ -54,13 +56,15 @@ expect -c "
   expect \"(P)提る\"
   send -- \"${domain}\n\"
   expect \"(P)提る\"
-  send -- \"$\n\"
+  send -- \"\n\"
+  expect \"(P)提る\"
+  send -- \"\n\"
   expect \"(P)提る\"
   send -- \"${user_id}\n\"
   expect \"(P)提る\"
   send -- \"${user_pass}\n\"
   expect \"(P)提る\"
-  send -- \"$\n\"
+  send -- \"\n\"
   expect \"(P)提る\"
   send -- \"${event}\n\"
   expect \"(P)提る\"

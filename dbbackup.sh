@@ -1,3 +1,5 @@
+#!/bin/sh -x
+
 #ファイル名を定義(※ファイル名で日付がわかるようにしておきます)
 mydate=`date +%y%m%d%H%M%S`
 #echo $mydate
