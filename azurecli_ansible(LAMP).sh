@@ -98,5 +98,3 @@ ssh -n  -oStrictHostKeyChecking=no ansibleuser@$ansiblemain -i ~/.ssh/id_rsa ans
 
 #お知らせメッセージ
 echo "AnsibleMainのアドレスは"$ansiblemain
-
-ssh -n  -oStrictHostKeyChecking=no ansibleuser@10.0.0.5 -i ~/.ssh/id_rsa
